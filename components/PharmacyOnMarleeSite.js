@@ -9,9 +9,7 @@ import React, { useMemo, useState } from "react";
  *
  * To update hours: change BUSINESS_HOURS below.
  * To enable booking: paste your MAPflow iframe URL into BOOKING_IFRAME_SRC.
- */
-
-const LOGO_URL = "/pharm.jpg"; // your logo in /public
+ 
 const BOOKING_IFRAME_SRC = ""; // e.g. "https://mapflow.app/embed/your-widget" (leave "" for now)
 
 // Easy to edit business hours
@@ -281,8 +279,7 @@ export default function PharmacyOnMarleeSite() {
               <span className="font-semibold">Pharmacy on Marlee</span>
             </div>
             <p className="text-sm text-slate-400 mt-2">
-        <img
-  src={LOGO_URL}
+      
   alt="Pharmacy on Marlee"
 className="h-10 w-auto"
 
