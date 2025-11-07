@@ -60,31 +60,26 @@ export default function PharmacyOnMarleeSite() {
   return (
     <div className="min-h-screen bg-white text-slate-900">
       {/* Top nav */}
-      <header className="sticky top-0 z-40 bg-white/80 backdrop-blur border-b">
-        <div className="mx-auto max-w-6xl px-4 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-          
+   <header className="sticky top-0 z-40 bg-white/80 backdrop-blur border-b">
+  <div className="mx-auto max-w-6xl px-4 py-3 flex items-center justify-between">
+    <div className="flex items-center gap-3">
+      <h1 className="text-xl font-extrabold tracking-tight text-slate-900">
+        Pharmacy on Marlee
+      </h1>
+      <p className="text-xs text-slate-600">
+        Minor Ailments • Vaccinations • Prescriptions
+      </p>
+    </div>
 
-              alt="Pharmacy on Marlee"
-              className="h-10 w-10 rounded-lg object-cover ring-1 ring-slate-200"
-            />
-            <div>
-              <h1 className="text-xl font-extrabold tracking-tight text-slate-900">
-                Pharmacy on Marlee
-              </h1>
-              <p className="text-xs text-slate-600">
-                Minor Ailments • Vaccinations • Prescriptions
-              </p>
-            </div>
-          </div>
-          <nav className="hidden md:flex items-center gap-6 text-sm">
-            <a className="hover:underline" href="#book">Book</a>
-            <a className="hover:underline" href="#services">Services</a>
-            <a className="hover:underline" href="#hours">Hours</a>
-            <a className="hover:underline" href="#contact">Contact</a>
-          </nav>
-        </div>
-      </header>
+    <nav className="hidden md:flex items-center gap-6 text-sm">
+      <a className="hover:underline" href="#book">Book</a>
+      <a className="hover:underline" href="#services">Services</a>
+      <a className="hover:underline" href="#hours">Hours</a>
+      <a className="hover:underline" href="#contact">Contact</a>
+    </nav>
+  </div>
+</header>
+
 
       {/* Hero */}
       <section className="bg-[rgb(214,54,44)] text-white">
@@ -271,19 +266,18 @@ export default function PharmacyOnMarleeSite() {
   <div className="mx-auto max-w-6xl px-4 py-10 grid md:grid-cols-2 gap-6">
     <div className="flex items-center gap-2">
       <span className="font-semibold">Pharmacy on Marlee</span>
+      <p className="text-sm text-slate-400 mt-2">
+        {ADDRESS} • Tel {PHONE} • Fax {FAX}
+      </p>
     </div>
 
     <div className="text-sm">
-      <p>{ADDRESS} • Tel {PHONE} • Fax {FAX}</p>
-      <p className="text-slate-400 mt-1">
-        © {new Date().getFullYear()} Pharmacy on Marlee. All rights reserved.
-      </p>
-      <p className="text-slate-400 mt-1">
-        Minor ailments program available in Ontario. Eligibility applies.
-      </p>
+      <p>© {new Date().getFullYear()} Pharmacy on Marlee. All rights reserved.</p>
+      <p className="text-slate-400 mt-1">Minor ailments program available in Ontario. Eligibility applies.</p>
     </div>
   </div>
 </footer>
+
 
     </div>
   );
