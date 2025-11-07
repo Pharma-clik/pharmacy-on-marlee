@@ -274,7 +274,8 @@ export default function PharmacyOnMarleeSite() {
         <div className="mx-auto max-w-6xl px-4 py-10 grid md:grid-cols-2 gap-6">
           <div>
             <div className="flex items-center gap-2">
-    className="h-10 w-auto md:h-12 lg:h-16"
+    className="h-10 w-auto"
+
 
 
               <span className="font-semibold">Pharmacy on Marlee</span>
@@ -283,8 +284,8 @@ export default function PharmacyOnMarleeSite() {
         <img
   src={LOGO_URL}
   alt="Pharmacy on Marlee"
-  className="h-16 w-auto md:h-12 lg:h-16"
-/>
+className="h-10 w-auto"
+
 <span className="font-semibold">Pharmacy on Marlee</span>
 </div>
               {ADDRESS} • Tel {PHONE} • Fax {FAX}
