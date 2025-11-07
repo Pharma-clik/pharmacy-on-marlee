@@ -11,7 +11,7 @@ import React, { useMemo, useState } from "react";
  * To enable booking: paste your MAPflow iframe URL into BOOKING_IFRAME_SRC.
  */
 
-const LOGO_URL = "/pharmacy-on-marlee-logo.jpeg"; // your logo in /public
+const LOGO_URL = "/pharm.jpg"; // your logo in /public
 const BOOKING_IFRAME_SRC = ""; // e.g. "https://mapflow.app/embed/your-widget" (leave "" for now)
 
 // Easy to edit business hours
