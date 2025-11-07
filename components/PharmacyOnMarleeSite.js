@@ -60,14 +60,14 @@ export default function PharmacyOnMarleeSite() {
   return (
     <div className="min-h-screen bg-white text-slate-900">
       {/* Top nav */}
-   <header className="sticky top-0 z-40 bg-white/80 backdrop-blur border-b">
+<header className="sticky top-0 z-40 bg-white/80 backdrop-blur border-b">
   <div className="mx-auto max-w-6xl px-4 py-3 flex items-center justify-between">
     <div className="flex items-center gap-3">
       <h1 className="text-xl font-extrabold tracking-tight text-slate-900">
         Pharmacy on Marlee
       </h1>
       <p className="text-xs text-slate-600">
-        Minor Ailments • Vaccinations • Prescriptions
+        Minor Ailments · Vaccinations · Prescriptions
       </p>
     </div>
 
@@ -79,6 +79,7 @@ export default function PharmacyOnMarleeSite() {
     </nav>
   </div>
 </header>
+
 
 
       {/* Hero */}
@@ -262,21 +263,22 @@ export default function PharmacyOnMarleeSite() {
         </div>
       </section>
 {/* Footer */}
-<footer className="bg-slate-900 text-slate-200">
+<<footer className="bg-slate-900 text-slate-200">
   <div className="mx-auto max-w-6xl px-4 py-10 grid md:grid-cols-2 gap-6">
     <div className="flex items-center gap-2">
+      {/* delete any orphaned img/alt/className lines here */}
       <span className="font-semibold">Pharmacy on Marlee</span>
-      <p className="text-sm text-slate-400 mt-2">
-        {ADDRESS} • Tel {PHONE} • Fax {FAX}
-      </p>
     </div>
-
-    <div className="text-sm">
-      <p>© {new Date().getFullYear()} Pharmacy on Marlee. All rights reserved.</p>
-      <p className="text-slate-400 mt-1">Minor ailments program available in Ontario. Eligibility applies.</p>
-    </div>
+    <p className="text-sm text-slate-400 mt-2">
+      {ADDRESS} • Tel {PHONE} • Fax {FAX}
+    </p>
+  </div>
+  <div className="text-sm">
+    <p>© {new Date().getFullYear()} Pharmacy on Marlee. All rights reserved.</p>
+    <p className="text-slate-400 mt-1">Minor ailments program available in Ontario. Eligibility applies.</p>
   </div>
 </footer>
+
 
 
     </div>
