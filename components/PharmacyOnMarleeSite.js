@@ -86,7 +86,7 @@ export default function PharmacyOnMarleeSite() {
       </header>
 
       {/* Hero */}
-      <section className="bg-[rgb(214,54,44)] text-white">
+      <section className="bg-white text-blue-900">
         <div className="mx-auto max-w-6xl px-4 py-16">
           <div className="grid md:grid-cols-2 gap-8 items-center">
             <p className="uppercase tracking-widest text-white/80 text-xs mb-2">
