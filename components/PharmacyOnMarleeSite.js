@@ -266,38 +266,25 @@ export default function PharmacyOnMarleeSite() {
           </div>
         </div>
       </section>
+{/* Footer */}
+<footer className="bg-slate-900 text-slate-200">
+  <div className="mx-auto max-w-6xl px-4 py-10 grid md:grid-cols-2 gap-6">
+    <div className="flex items-center gap-2">
+      <span className="font-semibold">Pharmacy on Marlee</span>
+    </div>
 
-      {/* Footer */}
-      <footer className="bg-slate-900 text-slate-200">
-        <div className="mx-auto max-w-6xl px-4 py-10 grid md:grid-cols-2 gap-6">
-          <div>
-            <div className="flex items-center gap-2">
-    className="h-10 w-auto"
+    <div className="text-sm">
+      <p>{ADDRESS} • Tel {PHONE} • Fax {FAX}</p>
+      <p className="text-slate-400 mt-1">
+        © {new Date().getFullYear()} Pharmacy on Marlee. All rights reserved.
+      </p>
+      <p className="text-slate-400 mt-1">
+        Minor ailments program available in Ontario. Eligibility applies.
+      </p>
+    </div>
+  </div>
+</footer>
 
-
-
-              <span className="font-semibold">Pharmacy on Marlee</span>
-            </div>
-            <p className="text-sm text-slate-400 mt-2">
-      
-  alt="Pharmacy on Marlee"
-className="h-10 w-auto"
-
-<span className="font-semibold">Pharmacy on Marlee</span>
-</div>
-              {ADDRESS} • Tel {PHONE} • Fax {FAX}
-            </p>
-          </div>
-          <div className="text-sm">
-            <p>
-              © {new Date().getFullYear()} Pharmacy on Marlee. All rights reserved.
-            </p>
-            <p className="text-slate-400 mt-1">
-              Minor ailments program available in Ontario. Eligibility applies.
-            </p>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 }
