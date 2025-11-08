@@ -3,13 +3,16 @@ import React, { useMemo, useState } from "react";
 /**
  * Pharmacy on Marlee – single-file website component
  * - Red/blue/white theme
+ * - Hero with pharmacy-related background image (Unsplash; free for commercial use)
+ * - "Free delivery" + "Seniors’ discount" badges
  * - Editable business hours + services
- * - Optional MAPflow booking iframe (leave empty to show the call/visit message)
+ * - Optional MAPflow booking iframe (leave BOOKING_IFRAME_SRC empty to show call/visit card)
  *
- * How to customize:
+ * Customize:
  *  - Update ADDRESS, PHONE, FAX below.
- *  - Change BUSINESS_HOURS as needed.
- *  - When you have your MAPflow embed link, paste it into BOOKING_IFRAME_SRC.
+ *  - Edit BUSINESS_HOURS as needed (Sunday tentative note kept).
+ *  - When you have your MAPflow embed link, set BOOKING_IFRAME_SRC.
+ *  - Optional: upload /public/hero.jpg and set backgroundImage: "url('/hero.jpg')".
  */
 
 // --- Easy-to-edit settings ---------------------------------------------------
@@ -17,7 +20,7 @@ const ADDRESS = "558 Marlee Ave, North York, Ontario";
 const PHONE = "437-917-9282";
 const FAX = "437-917-9288";
 
-// If you get a MAPflow embed link, paste it here (keep "" to hide the iframe)
+// If you get a MAPflow EMBED link, paste it here (keep "" to show the call/visit card)
 const BOOKING_IFRAME_SRC = "";
 
 // Business hours (displayed in the Hours section)
@@ -85,37 +88,64 @@ export default function PharmacyOnMarleeSite() {
         </div>
       </header>
 
-      {/* Hero */}
-      <section className="bg-white text-blue-900">
-        <div className="mx-auto max-w-6xl px-4 py-16">
-          <div className="grid md:grid-cols-2 gap-8 items-center">
-            <p className="uppercase tracking-widest text-white/80 text-xs mb-2">
-              North York · Ontario
-            </p>
-            <h2 className="text-3xl md:text-4xl font-extrabold leading-tight">
-              Fast, expert care for <span className="underline decoration-white/70">Minor Ailments</span>
-            </h2>
-            <p className="mt-3 text-white/90 md:col-span-2">
-              Same-day assessments by our pharmacist. Walk-ins welcome or book online in seconds.
-            </p>
+      {/* Hero (with licensed, free background image + badges) */}
+      <section className="relative text-white">
+        {/* Background image (Unsplash – free for commercial use). 
+            Optional: upload /public/hero.jpg and use backgroundImage: "url('/hero.jpg')" */}
+        <div
+          className="absolute inset-0 bg-cover bg-center"
+          style={{
+            backgroundImage:
+              "url('https://images.unsplash.com/photo-1584982751601-97dcc096659c?q=80&w=1600&auto=format&fit=crop')",
+          }}
+          aria-hidden="true"
+        />
+        {/* Overlay tint for readability */}
+        <div className="absolute inset-0 bg-blue-900/60" aria-hidden="true" />
 
-            <div className="mt-6 flex flex-wrap gap-3 md:col-span-2">
-              <a
-                href="#book"
-                className="px-5 py-3 font-semibold rounded-xl bg-white/10 ring-1 ring-white/60 hover:bg-white/20 transition"
-              >
-                Book an Assessment
-              </a>
+        <div className="relative mx-auto max-w-6xl px-4 py-16">
+          <div className="grid md:grid-cols-2 gap-8 items-start">
+            <div>
+              <p className="uppercase tracking-widest text-white/80 text-xs mb-2">
+                North York · Ontario
+              </p>
+              <h2 className="text-3xl md:text-4xl font-extrabold leading-tight">
+                Fast, expert care for <span className="underline decoration-white/70">Minor Ailments</span>
+              </h2>
+              <p className="mt-3 text-white/90">
+                Same-day assessments by our pharmacist. Walk-ins welcome or book online.
+              </p>
 
-              <a
-                href={`tel:${PHONE.replace(/[^0-9+]/g, "")}`}
-                className="px-5 py-3 font-semibold rounded-xl ring-1 ring-white/60 hover:bg-white/10 transition"
-              >
-                Call {PHONE}
-              </a>
+              {/* Badges */}
+              <div className="mt-4 flex flex-wrap gap-2">
+                <span className="inline-flex items-center rounded-full bg-white/90 text-blue-900 px-3 py-1 text-xs font-semibold ring-1 ring-white/70">
+                  Free delivery
+                </span>
+                <span className="inline-flex items-center rounded-full bg-white/90 text-blue-900 px-3 py-1 text-xs font-semibold ring-1 ring-white/70">
+                  Seniors’ discount
+                </span>
+              </div>
+
+              {/* Primary actions */}
+              <div className="mt-6 flex flex-wrap gap-3">
+                {/* Change href to a public Mapflow booking URL if you prefer opening in a new tab */}
+                <a
+                  href="#book"
+                  className="px-5 py-3 font-semibold rounded-xl bg-white/10 ring-1 ring-white/60 hover:bg-white/20 transition"
+                >
+                  Book an Appointment
+                </a>
+                <a
+                  href={`tel:${PHONE.replace(/[^0-9+]/g, "")}`}
+                  className="px-5 py-3 font-semibold rounded-xl ring-1 ring-white/60 hover:bg-white/10 transition"
+                >
+                  Call {PHONE}
+                </a>
+              </div>
             </div>
 
-            <div className="rounded-2xl p-6 bg-white/10 ring-1 ring-white/30 md:col-span-2 mt-8">
+            {/* Quick contact card on image */}
+            <div className="rounded-2xl p-6 bg-white/10 ring-1 ring-white/30 backdrop-blur">
               <h3 className="font-semibold text-lg mb-2">Address</h3>
               <p className="text-white/90">{ADDRESS}</p>
               <h3 className="font-semibold text-lg mt-4 mb-2">Contact</h3>
@@ -124,7 +154,7 @@ export default function PharmacyOnMarleeSite() {
                 Fax: {FAX}
               </p>
               <p className="text-xs mt-4 text-white/80">
-                Colours: red • blue • white — matching your brand.
+                We offer free delivery and a seniors’ discount. Ask us in-store.
               </p>
             </div>
           </div>
@@ -296,4 +326,3 @@ export default function PharmacyOnMarleeSite() {
     </div>
   );
 }
-
