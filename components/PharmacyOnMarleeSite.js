@@ -1,30 +1,14 @@
 import React, { useMemo, useState } from "react";
 
-/**
- * Pharmacy on Marlee – single-file website component
- * - Red/blue/white theme
- * - Hero with pharmacy-related background image (Unsplash; free for commercial use)
- * - "Free delivery" + "Seniors’ discount" badges
- * - Simple Refill form (emails pharmacyonmarlee@gmail.com via FormSubmit)
- *   * No patient confirmation email is sent.
- *   * Uses a honeypot field + no CAPTCHA.
- * - Optional MAPflow booking iframe (set BOOKING_IFRAME_SRC when you have it)
- *
- * Customize:
- *  - Update ADDRESS, PHONE, FAX below.
- *  - Edit BUSINESS_HOURS as needed.
- *  - Add your MAPflow embed in BOOKING_IFRAME_SRC when ready.
- */
-
-// --- Easy-to-edit settings ---------------------------------------------------
+// --- Editable settings -------------------------------------------------------
 const ADDRESS = "558 Marlee Ave, North York, Ontario";
 const PHONE = "437-917-9282";
 const FAX = "437-917-9288";
 
-// If you get a MAPflow EMBED link, paste it here (keep "" to show the call/visit card)
+// If you get a MAPflow EMBED link, paste it here (leave "" to keep the info card)
 const BOOKING_IFRAME_SRC = "";
 
-// Business hours (displayed in the Hours section)
+// Displayed business hours
 const BUSINESS_HOURS = {
   Monday: "9:00 AM – 6:00 PM",
   Tuesday: "9:00 AM – 6:00 PM",
@@ -38,6 +22,19 @@ const BUSINESS_HOURS = {
 
 export default function PharmacyOnMarleeSite() {
   const [filter, setFilter] = useState("");
+  const [sending, setSending] = useState(false);
+  const [sent, setSent] = useState(null); // null | "ok" | "err"
+  const [form, setForm] = useState({
+    fullName: "",
+    dateOfBirth: "",
+    phone: "",
+    email: "",
+    rxNumber: "",
+    drugName: "",
+    quantity: "",
+    notes: "",
+    delivery: "Pickup", // Pickup | Delivery
+  });
 
   const minorAilments = useMemo(
     () => [
@@ -66,17 +63,50 @@ export default function PharmacyOnMarleeSite() {
     return minorAilments.filter((x) => x.toLowerCase().includes(q));
   }, [filter, minorAilments]);
 
+  function update(k, v) {
+    setForm((s) => ({ ...s, [k]: v }));
+  }
+
+  async function submitRefill(e) {
+    e.preventDefault();
+    setSending(true);
+    setSent(null);
+    try {
+      const r = await fetch("/api/refill", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...form }),
+      });
+      if (!r.ok) throw new Error("Request failed");
+      setSent("ok");
+      setForm({
+        fullName: "",
+        dateOfBirth: "",
+        phone: "",
+        email: "",
+        rxNumber: "",
+        drugName: "",
+        quantity: "",
+        notes: "",
+        delivery: "Pickup",
+      });
+    } catch (err) {
+      setSent("err");
+    } finally {
+      setSending(false);
+    }
+  }
+
   return (
     <div className="min-h-screen bg-white text-slate-900">
       {/* Top nav */}
       <header className="sticky top-0 z-40 bg-white/80 backdrop-blur border-b">
         <div className="mx-auto max-w-6xl px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            {/* Title bigger + red */}
-            <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight text-red-600">
+            <h1 className="text-2xl font-extrabold tracking-tight text-red-700"> {/* title bigger + red */}
               Pharmacy on Marlee
             </h1>
-            <p className="hidden sm:block text-xs text-slate-600">
+            <p className="text-xs text-slate-600">
               Minor Ailments • Vaccinations • Prescriptions
             </p>
           </div>
@@ -91,10 +121,8 @@ export default function PharmacyOnMarleeSite() {
         </div>
       </header>
 
-      {/* Hero (with licensed, free background image + badges) */}
+      {/* Hero with background + badges */}
       <section className="relative text-white">
-        {/* Background image (Unsplash – free for commercial use). 
-            Optional: upload /public/hero.jpg and use backgroundImage: "url('/hero.jpg')" */}
         <div
           className="absolute inset-0 bg-cover bg-center"
           style={{
@@ -103,9 +131,7 @@ export default function PharmacyOnMarleeSite() {
           }}
           aria-hidden="true"
         />
-        {/* Overlay tint for readability */}
         <div className="absolute inset-0 bg-blue-900/60" aria-hidden="true" />
-
         <div className="relative mx-auto max-w-6xl px-4 py-16">
           <div className="grid md:grid-cols-2 gap-8 items-start">
             <div>
@@ -118,8 +144,6 @@ export default function PharmacyOnMarleeSite() {
               <p className="mt-3 text-white/90">
                 Same-day assessments by our pharmacist. Walk-ins welcome or book online.
               </p>
-
-              {/* Badges */}
               <div className="mt-4 flex flex-wrap gap-2">
                 <span className="inline-flex items-center rounded-full bg-white/90 text-blue-900 px-3 py-1 text-xs font-semibold ring-1 ring-white/70">
                   Free delivery
@@ -128,8 +152,6 @@ export default function PharmacyOnMarleeSite() {
                   Seniors’ discount
                 </span>
               </div>
-
-              {/* Primary actions */}
               <div className="mt-6 flex flex-wrap gap-3">
                 <a
                   href="#book"
@@ -146,7 +168,6 @@ export default function PharmacyOnMarleeSite() {
               </div>
             </div>
 
-            {/* Quick contact card on image */}
             <div className="rounded-2xl p-6 bg-white/10 ring-1 ring-white/30 backdrop-blur">
               <h3 className="font-semibold text-lg mb-2">Address</h3>
               <p className="text-white/90">{ADDRESS}</p>
@@ -155,9 +176,7 @@ export default function PharmacyOnMarleeSite() {
                 Tel: <a className="underline" href={`tel:${PHONE.replace(/[^0-9+]/g, "")}`}>{PHONE}</a><br />
                 Fax: {FAX}
               </p>
-              <p className="text-xs mt-4 text-white/80">
-                We offer free delivery and a seniors’ discount. Ask us in-store.
-              </p>
+              <p className="text-xs mt-4 text-white/80">We offer free delivery and a seniors’ discount.</p>
             </div>
           </div>
         </div>
@@ -183,8 +202,8 @@ export default function PharmacyOnMarleeSite() {
             <div className="mt-6 grid md:grid-cols-2 gap-6">
               <div className="rounded-2xl bg-white text-slate-900 p-5">
                 <p className="text-sm">
-                  MAPflow embed not connected yet. Once you share your MAPflow link, we’ll drop it in so
-                  patients can book directly here.
+                  MAPflow embed not connected yet. Once you share your MAPflow link, we’ll add it here so
+                  patients can book directly on this page.
                 </p>
                 <p className="text-sm mt-3">
                   Until then: call{" "}
@@ -195,119 +214,66 @@ export default function PharmacyOnMarleeSite() {
                 </p>
               </div>
 
-              <div className="rounded-2xl bg-white text-slate-900 p-5 overflow-auto">
-                <label className="block text-sm font-semibold mb-2">Quick search: Minor Ailments</label>
-                <input
-                  value={filter}
-                  onChange={(e) => setFilter(e.target.value)}
-                  placeholder="Type e.g. allergies, pink eye, UTI…"
-                  className="w-full rounded-lg border px-3 py-2"
-                />
-                <ul className="mt-3 space-y-1 max-h-56 overflow-auto text-sm">
-                  {filteredAilments.map((a) => (
-                    <li key={a} className="px-2 py-1 rounded hover:bg-slate-100">{a}</li>
-                  ))}
-                </ul>
-              </div>
+              <MinorAilmentsQuickList filter={filter} setFilter={setFilter} items={minorAilments} />
             </div>
           )}
         </div>
       </section>
 
-      {/* Refill (emails pharmacyonmarlee@gmail.com via FormSubmit) */}
+      {/* Refill */}
       <section id="refill" className="bg-white">
         <div className="mx-auto max-w-6xl px-4 py-14">
-          <h3 className="text-2xl font-extrabold">Refill Request</h3>
+          <h3 className="text-2xl font-extrabold">Prescription Refill</h3>
           <p className="text-sm text-slate-600 mt-2">
-            Submit your refill details below. We’ll call you when it’s ready. (No auto-emails to patients.)
+            Submit a refill request and we’ll confirm by phone/email. For urgent needs, please call {PHONE}.
           </p>
 
-          <form
-            className="mt-6 grid md:grid-cols-2 gap-5 rounded-2xl border p-5"
-            action="https://formsubmit.co/pharmacyonmarlee@gmail.com"
-            method="POST"
-            target="_blank"
-          >
-            {/* FormSubmit controls */}
-            <input type="hidden" name="_subject" value="Refill Request – Pharmacy on Marlee" />
-            <input type="hidden" name="_template" value="table" />
-            <input type="hidden" name="_captcha" value="false" />
-            {/* honeypot (leave empty) */}
-            <input type="text" name="_honey" className="hidden" tabIndex={-1} autoComplete="off" />
-
-            <div className="grid gap-3">
-              <label className="text-sm font-semibold">Patient Full Name*</label>
-              <input
-                required
-                name="Patient Name"
-                type="text"
-                className="rounded-lg border px-3 py-2"
-                placeholder="Jane Doe"
-              />
+          <form onSubmit={submitRefill} className="mt-6 grid gap-4 md:grid-cols-2">
+            <TextInput label="Full Name" value={form.fullName} onChange={(v) => update("fullName", v)} required />
+            <TextInput label="Date of Birth (YYYY-MM-DD)" value={form.dateOfBirth} onChange={(v) => update("dateOfBirth", v)} required />
+            <TextInput label="Phone" value={form.phone} onChange={(v) => update("phone", v)} required />
+            <TextInput label="Email (optional)" value={form.email} onChange={(v) => update("email", v)} type="email" />
+            <TextInput label="Prescription / Rx Number (if known)" value={form.rxNumber} onChange={(v) => update("rxNumber", v)} />
+            <TextInput label="Drug Name / Strength" value={form.drugName} onChange={(v) => update("drugName", v)} required />
+            <TextInput label="Quantity (optional)" value={form.quantity} onChange={(v) => update("quantity", v)} />
+            <div className="md:col-span-2">
+              <label className="block text-sm font-semibold mb-1">Pickup or Delivery</label>
+              <select
+                className="w-full rounded-lg border px-3 py-2"
+                value={form.delivery}
+                onChange={(e) => update("delivery", e.target.value)}
+              >
+                <option>Pickup</option>
+                <option>Delivery (Free)</option>
+              </select>
             </div>
-
-            <div className="grid gap-3">
-              <label className="text-sm font-semibold">Date of Birth*</label>
-              <input
-                required
-                name="Date of Birth"
-                type="date"
-                className="rounded-lg border px-3 py-2"
-              />
-            </div>
-
-            <div className="grid gap-3">
-              <label className="text-sm font-semibold">Phone Number*</label>
-              <input
-                required
-                name="Phone"
-                type="tel"
-                className="rounded-lg border px-3 py-2"
-                placeholder="437-917-9282"
-              />
-            </div>
-
-            <div className="grid gap-3">
-              <label className="text-sm font-semibold">Prescription # or Medication Name*</label>
-              <input
-                required
-                name="Prescription(s)"
-                type="text"
-                className="rounded-lg border px-3 py-2"
-                placeholder="e.g., Rx#123456 or Atorvastatin 10 mg"
-              />
-            </div>
-
-            <div className="grid gap-3 md:col-span-2">
-              <label className="text-sm font-semibold">Notes (optional)</label>
+            <div className="md:col-span-2">
+              <label className="block text-sm font-semibold mb-1">Notes (allergies, changes, insurance, etc.)</label>
               <textarea
-                name="Notes"
-                rows={3}
-                className="rounded-lg border px-3 py-2"
-                placeholder="Allergies, pickup time, special instructions…"
+                className="w-full rounded-lg border px-3 py-2 min-h-[100px]"
+                value={form.notes}
+                onChange={(e) => update("notes", e.target.value)}
+                placeholder="Anything else we should know?"
               />
             </div>
 
             <div className="md:col-span-2 flex items-center gap-3">
               <button
                 type="submit"
-                className="px-5 py-3 rounded-xl bg-blue-600 text-white font-semibold ring-1 ring-blue-700/40 hover:bg-blue-700 transition"
+                disabled={sending}
+                className="px-5 py-3 rounded-xl bg-blue-600 text-white font-semibold ring-1 ring-blue-700/40 hover:bg-blue-700 transition disabled:opacity-60"
               >
-                Submit Refill
+                {sending ? "Sending…" : "Submit Refill Request"}
               </button>
-              <p className="text-xs text-slate-500">
-                Or call us at{" "}
-                <a className="underline" href={`tel:${PHONE.replace(/[^0-9+]/g, "")}`}>
-                  {PHONE}
-                </a>.
-              </p>
+              {sent === "ok" && <span className="text-green-700 text-sm">Sent! We’ll contact you soon.</span>}
+              {sent === "err" && <span className="text-red-700 text-sm">Could not send. Please call {PHONE}.</span>}
             </div>
           </form>
         </div>
       </section>
 
       {/* Services */}
-      <section id="services" className="bg-slate-50">
+      <section id="services" className="bg-white">
         <div className="mx-auto max-w-6xl px-4 py-14">
           <h3 className="text-2xl font-extrabold">Our Services</h3>
           <div className="mt-6 grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -319,7 +285,7 @@ export default function PharmacyOnMarleeSite() {
               ["Blister Packs", "Convenient weekly compliance packaging."],
               ["Compounding (Level B)", "Select non-sterile compounds."],
             ].map(([title, text]) => (
-              <div key={title} className="rounded-2xl border bg-white p-5">
+              <div key={title} className="rounded-2xl border p-5">
                 <h4 className="font-semibold">{title}</h4>
                 <p className="text-sm text-slate-600 mt-1">{text}</p>
               </div>
@@ -329,10 +295,10 @@ export default function PharmacyOnMarleeSite() {
       </section>
 
       {/* Hours */}
-      <section id="hours" className="bg-white">
+      <section id="hours" className="bg-slate-50">
         <div className="mx-auto max-w-6xl px-4 py-14">
           <h3 className="text-2xl font-extrabold">Business Hours</h3>
-          <div className="mt-6 overflow-hidden rounded-2xl border bg-white">
+        <div className="mt-6 overflow-hidden rounded-2xl border bg-white">
             <table className="w-full text-left text-sm">
               <tbody>
                 {Object.entries(BUSINESS_HOURS).map(([day, hours]) => (
@@ -352,8 +318,7 @@ export default function PharmacyOnMarleeSite() {
       <section id="contact" className="bg-white">
         <div className="mx-auto max-w-6xl px-4 py-14">
           <h3 className="text-2xl font-extrabold">Contact</h3>
-
-        <div className="mt-6 grid md:grid-cols-2 gap-6">
+          <div className="mt-6 grid md:grid-cols-2 gap-6">
             <div className="rounded-2xl border p-5">
               <h4 className="font-semibold">Pharmacy on Marlee</h4>
               <p className="mt-1 text-slate-700">{ADDRESS}</p>
@@ -364,38 +329,30 @@ export default function PharmacyOnMarleeSite() {
                 </a>{" "}
                 · Fax: {FAX}
               </p>
-
               <div className="mt-4 flex gap-3">
                 <a
                   href="tel:${PHONE}"
-                  onClick={(e) => {
-                    e.currentTarget.href = `tel:${PHONE.replace(/[^0-9+]/g, "")}`;
-                  }}
+                  onClick={(e) => { e.currentTarget.href = `tel:${PHONE.replace(/[^0-9+]/g, "")}`; }}
                   className="px-4 py-2 rounded-lg bg-blue-600 text-white font-semibold ring-1 ring-blue-700/40 hover:bg-blue-700 transition"
                 >
                   Call now
                 </a>
-
                 <a
                   href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(ADDRESS)}`}
-                  target="_blank"
-                  rel="noreferrer"
+                  target="_blank" rel="noreferrer"
                   className="px-4 py-2 rounded-lg ring-1 ring-slate-300 hover:bg-slate-50 transition"
                 >
                   Open in Google Maps
                 </a>
               </div>
             </div>
-
             <div className="rounded-2xl overflow-hidden ring-1 ring-slate-200">
               <iframe
                 title="Google Map"
                 className="w-full h-[320px]"
                 loading="lazy"
                 referrerPolicy="no-referrer-when-downgrade"
-                src={`https://www.google.com/maps?q=${encodeURIComponent(
-                  ADDRESS
-                )}&output=embed`}
+                src={`https://www.google.com/maps?q=${encodeURIComponent(ADDRESS)}&output=embed`}
               />
             </div>
           </div>
@@ -417,6 +374,43 @@ export default function PharmacyOnMarleeSite() {
           </div>
         </div>
       </footer>
+    </div>
+  );
+}
+
+// --- small components --------------------------------------------------------
+function TextInput({ label, value, onChange, required, type = "text" }) {
+  return (
+    <div>
+      <label className="block text-sm font-semibold mb-1">
+        {label} {required && <span className="text-red-600">*</span>}
+      </label>
+      <input
+        type={type}
+        className="w-full rounded-lg border px-3 py-2"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        required={required}
+      />
+    </div>
+  );
+}
+
+function MinorAilmentsQuickList({ filter, setFilter, items }) {
+  return (
+    <div className="rounded-2xl bg-white text-slate-900 p-5 overflow-auto">
+      <label className="block text-sm font-semibold mb-2">Quick search: Minor Ailments</label>
+      <input
+        value={filter}
+        onChange={(e) => setFilter(e.target.value)}
+        placeholder="Type e.g. allergies, pink eye, UTI…"
+        className="w-full rounded-lg border px-3 py-2"
+      />
+      <ul className="mt-3 space-y-1 max-h-56 overflow-auto text-sm">
+        {items.map((a) => (
+          <li key={a} className="px-2 py-1 rounded hover:bg-slate-100">{a}</li>
+        ))}
+      </ul>
     </div>
   );
 }
