@@ -1,19 +1,15 @@
 import React, { useMemo, useState } from "react";
 
 /**
- * Pharmacy on Marlee – single-file website component
- * - Hero with pharmacy-related background image (Unsplash; free for commercial use)
- * - "Free delivery" + "Seniors’ discount" badges
- * - Minor ailments quick search
- * - Simple Refill Request form (emails to pharmacyonmarlee@gmail.com via FormSubmit)
- * - Booking section (add MAPflow iframe when ready)
- * - Hours, services, contact + Google Map
+ * Pharmacy on Marlee – Single-file site component
+ * - Title in red (slightly larger)
+ * - Hero with licensed free image (Unsplash)
+ * - Badges: Free delivery + Seniors’ discount
+ * - Booking (Mapflow-ready)
+ * - SIMPLE Refill form (emails to pharmacyonmarlee@gmail.com via FormSubmit)
+ * - Hours, Services, Contact + Map
  *
- * Refill: Uses https://formsubmit.co to send directly to your email.
- * No server code required. We include spam honeypot + redirect.
- *
- * If you ever want to disable FormSubmit, replace the form `action`
- * with `mailto:pharmacyonmarlee@gmail.com` (will open mail client instead).
+ * To enable live booking: set BOOKING_IFRAME_SRC to your Mapflow embed URL.
  */
 
 // --- Easy-to-edit settings ---------------------------------------------------
@@ -38,6 +34,7 @@ const BUSINESS_HOURS = {
 
 export default function PharmacyOnMarleeSite() {
   const [filter, setFilter] = useState("");
+
   const minorAilments = useMemo(
     () => [
       "Allergic Rhinitis (Seasonal Allergies)",
@@ -58,15 +55,12 @@ export default function PharmacyOnMarleeSite() {
     ],
     []
   );
+
   const filteredAilments = useMemo(() => {
     const q = filter.trim().toLowerCase();
     if (!q) return minorAilments;
     return minorAilments.filter((x) => x.toLowerCase().includes(q));
   }, [filter, minorAilments]);
-
-  // show a tiny “thanks” note if redirected back after form submit
-  const search = typeof window !== "undefined" ? window.location.search : "";
-  const submitted = search.includes("submitted=1");
 
   return (
     <div className="min-h-screen bg-white text-slate-900">
@@ -74,8 +68,8 @@ export default function PharmacyOnMarleeSite() {
       <header className="sticky top-0 z-40 bg-white/80 backdrop-blur border-b">
         <div className="mx-auto max-w-6xl px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            {/* Title in RED as requested */}
-            <h1 className="text-2xl font-extrabold tracking-tight" style={{ color: "#d6362c" }}>
+            {/* Title: slightly larger + red */}
+            <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight text-red-600">
               Pharmacy on Marlee
             </h1>
             <p className="text-xs text-slate-600">
@@ -93,7 +87,7 @@ export default function PharmacyOnMarleeSite() {
         </div>
       </header>
 
-      {/* Hero (with licensed, free background image + badges) */}
+      {/* Hero with background image + badges */}
       <section className="relative text-white">
         {/* Background image (Unsplash – free for commercial use). 
             Optional: upload /public/hero.jpg and use backgroundImage: "url('/hero.jpg')" */}
@@ -216,78 +210,76 @@ export default function PharmacyOnMarleeSite() {
         </div>
       </section>
 
-      {/* Refill (simple form that emails the pharmacy) */}
+      {/* Refill (simplified form to email the pharmacy) */}
       <section id="refill" className="bg-slate-50">
         <div className="mx-auto max-w-6xl px-4 py-14">
-          <h3 className="text-2xl font-extrabold">Refill Request</h3>
-          {submitted && (
-            <div className="mt-4 rounded-lg border border-green-200 bg-green-50 p-3 text-green-800 text-sm">
-              Thank you—your request was sent. We’ll call when it’s ready.
-            </div>
-          )}
+          <h3 className="text-2xl font-extrabold">Refill Prescriptions</h3>
+          <p className="text-sm text-slate-600 mt-2">
+            Submit your refill request below. We’ll call you when it’s ready. (No automatic patient emails.)
+          </p>
 
-          <form
-            className="mt-6 grid gap-4 rounded-2xl border bg-white p-5 md:grid-cols-2"
-            action="https://formsubmit.co/pharmacyonmarlee@gmail.com"
-            method="POST"
-          >
-            {/* FormSubmit controls */}
-            <input type="hidden" name="_subject" value="Refill Request - Pharmacy on Marlee" />
-            <input type="hidden" name="_template" value="table" />
-            <input type="hidden" name="_captcha" value="false" />
-            {/* Redirect back with a success flag */}
-            <input type="hidden" name="_next" value="/?submitted=1#refill" />
-            {/* Honeypot anti-spam */}
-            <input type="text" name="_honey" className="hidden" tabIndex={-1} autoComplete="off" />
+          <div className="mt-6 rounded-2xl bg-white border p-5">
+            <form
+              action="https://formsubmit.co/pharmacyonmarlee@gmail.com"
+              method="POST"
+              className="grid md:grid-cols-2 gap-4"
+            >
+              {/* FormSubmit settings */}
+              <input type="hidden" name="_subject" value="Refill Request - Pharmacy on Marlee" />
+              <input type="hidden" name="_template" value="table" />
+              <input type="hidden" name="_captcha" value="false" />
+              {/* Redirect back to homepage after submit */}
+              <input type="hidden" name="_next" value="https://pharmacy-on-marlee.vercel.app/?refill=sent" />
+              {/* Honeypot (spam trap) */}
+              <input type="text" name="_honey" className="hidden" aria-hidden="true" />
 
-            <div className="flex flex-col">
-              <label className="text-sm font-medium">Full name</label>
-              <input name="Full Name" required className="mt-1 rounded-lg border px-3 py-2" />
-            </div>
+              <div>
+                <label className="block text-sm font-semibold mb-1">Full Name</label>
+                <input name="Patient Name" required className="w-full rounded-lg border px-3 py-2" />
+              </div>
 
-            <div className="flex flex-col">
-              <label className="text-sm font-medium">Date of birth</label>
-              <input name="Date of Birth" placeholder="YYYY-MM-DD" className="mt-1 rounded-lg border px-3 py-2" />
-            </div>
+              <div>
+                <label className="block text-sm font-semibold mb-1">Date of Birth (YYYY-MM-DD)</label>
+                <input name="Date of Birth" placeholder="2000-01-31" required className="w-full rounded-lg border px-3 py-2" />
+              </div>
 
-            <div className="flex flex-col">
-              <label className="text-sm font-medium">Phone number</label>
-              <input name="Phone" required className="mt-1 rounded-lg border px-3 py-2" />
-            </div>
+              <div>
+                <label className="block text-sm font-semibold mb-1">Phone Number</label>
+                <input name="Phone" required className="w-full rounded-lg border px-3 py-2" />
+              </div>
 
-            <div className="flex flex-col">
-              <label className="text-sm font-medium">Prescription # / Drug name</label>
-              <input name="Prescription(s)" required className="mt-1 rounded-lg border px-3 py-2" />
-            </div>
+              <div>
+                <label className="block text-sm font-semibold mb-1">Refill Details (Rx # / Medication)</label>
+                <textarea name="Refill Details" rows={3} required className="w-full rounded-lg border px-3 py-2" />
+              </div>
 
-            <div className="md:col-span-2 flex items-center gap-3">
-              <label className="inline-flex items-center gap-2 text-sm">
-                <input type="checkbox" name="Free Delivery Requested" className="rounded border" />
-                Request free delivery
-              </label>
-              <label className="inline-flex items-center gap-2 text-sm">
-                <input type="checkbox" name="Seniors Discount Eligible" className="rounded border" />
-                I am eligible for the seniors’ discount
-              </label>
-            </div>
+              <div className="md:col-span-2">
+                <label className="block text-sm font-semibold mb-1">Notes (optional)</label>
+                <textarea name="Notes" rows={2} className="w-full rounded-lg border px-3 py-2" />
+              </div>
 
-            <div className="md:col-span-2 flex flex-col">
-              <label className="text-sm font-medium">Notes (optional)</label>
-              <textarea name="Notes" rows={3} className="mt-1 rounded-lg border px-3 py-2" />
-            </div>
+              <div className="md:col-span-2 flex flex-wrap items-center gap-4">
+                <label className="inline-flex items-center gap-2 text-sm">
+                  <input type="radio" name="Pickup/Delivery" value="Pickup" defaultChecked />
+                  <span>Pickup</span>
+                </label>
+                <label className="inline-flex items-center gap-2 text-sm">
+                  <input type="radio" name="Pickup/Delivery" value="Delivery" />
+                  <span>Delivery</span>
+                </label>
+                <span className="text-xs text-slate-500">We offer free delivery.</span>
+              </div>
 
-            <div className="md:col-span-2">
-              <button
-                type="submit"
-                className="w-full md:w-auto px-5 py-3 rounded-xl bg-blue-600 text-white font-semibold ring-1 ring-blue-700/40 hover:bg-blue-700 transition"
-              >
-                Send Refill Request
-              </button>
-              <p className="text-xs text-slate-500 mt-2">
-                We’ll call you when your prescription is ready. No automatic email reply is sent to patients.
-              </p>
-            </div>
-          </form>
+              <div className="md:col-span-2">
+                <button
+                  type="submit"
+                  className="px-5 py-3 rounded-xl bg-blue-600 text-white font-semibold ring-1 ring-blue-700/40 hover:bg-blue-700 transition"
+                >
+                  Submit Refill Request
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
       </section>
 
@@ -317,7 +309,7 @@ export default function PharmacyOnMarleeSite() {
       <section id="hours" className="bg-slate-50">
         <div className="mx-auto max-w-6xl px-4 py-14">
           <h3 className="text-2xl font-extrabold">Business Hours</h3>
-        <div className="mt-6 overflow-hidden rounded-2xl border bg-white">
+          <div className="mt-6 overflow-hidden rounded-2xl border bg-white">
             <table className="w-full text-left text-sm">
               <tbody>
                 {Object.entries(BUSINESS_HOURS).map(([day, hours]) => (
@@ -338,7 +330,7 @@ export default function PharmacyOnMarleeSite() {
         <div className="mx-auto max-w-6xl px-4 py-14">
           <h3 className="text-2xl font-extrabold">Contact</h3>
 
-          <div className="mt-6 grid md:grid-cols-2 gap-6">
+        <div className="mt-6 grid md:grid-cols-2 gap-6">
             <div className="rounded-2xl border p-5">
               <h4 className="font-semibold">Pharmacy on Marlee</h4>
               <p className="mt-1 text-slate-700">{ADDRESS}</p>
