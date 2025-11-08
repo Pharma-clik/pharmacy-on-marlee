@@ -1,40 +1,42 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 
 /**
- * Pharmacy on Marlee – single-file website component
- * - Title bigger + red
- * - Hero with free Unsplash pharmacy background (ok for commercial use)
+ * Pharmacy on Marlee – site with simple Refill form
+ * - Title in red, slightly larger
+ * - Hero with pharmacy-related background (free Unsplash image)
  * - "Free delivery" + "Seniors’ discount" badges
- * - MAPflow-ready booking section (set BOOKING_IFRAME_SRC below)
- * - NEW: Refill form that emails pharmacyonmarlee@gmail.com via FormSubmit.co (no backend)
+ * - Refill form emails pharmacyonmarlee@gmail.com using FormSubmit
+ *   (no patient confirmation is sent)
+ * - Booking placeholder (MAPflow ready)
+ * - Hours, Services, Contact, Google Map
  *
- * Notes:
- *  - Update ADDRESS, PHONE, FAX if needed.
- *  - To enable on-page success redirect after refill submit, replace _next with your site URL.
+ * If you later want the booking widget live, set BOOKING_IFRAME_SRC below.
  */
 
 // --- Easy-to-edit settings ---------------------------------------------------
 const ADDRESS = "558 Marlee Ave, North York, Ontario";
 const PHONE = "437-917-9282";
 const FAX = "437-917-9288";
-
-// If you get a MAPflow EMBED link, paste it here (keep "" to show the call/visit card)
-const BOOKING_IFRAME_SRC = "";
-
-// Business hours (displayed in the Hours section)
-const BUSINESS_HOURS = {
-  Monday: "9:00 AM – 6:00 PM",
-  Tuesday: "9:00 AM – 6:00 PM",
-  Wednesday: "9:00 AM – 6:00 PM",
-  Thursday: "9:00 AM – 6:00 PM",
-  Friday: "9:00 AM – 6:00 PM",
-  Saturday: "10:00 AM – 2:00 PM",
-  Sunday: "10:00 AM – 2:00 PM (tentative)",
-};
+const BOOKING_IFRAME_SRC = ""; // paste your MAPflow EMBED url when ready
+const FORM_EMAIL = "pharmacyonmarlee@gmail.com"; // refill destination
 // -----------------------------------------------------------------------------
 
 export default function PharmacyOnMarleeSite() {
   const [filter, setFilter] = useState("");
+  const [showThanks, setShowThanks] = useState(false);
+
+  // Show a small thank-you banner if redirected back after form submit
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const hash = window.location.hash || "";
+      if (hash.includes("refill-thanks")) {
+        setShowThanks(true);
+        // hide after 8s
+        const t = setTimeout(() => setShowThanks(false), 8000);
+        return () => clearTimeout(t);
+      }
+    }
+  }, []);
 
   const minorAilments = useMemo(
     () => [
@@ -69,29 +71,35 @@ export default function PharmacyOnMarleeSite() {
       <header className="sticky top-0 z-40 bg-white/80 backdrop-blur border-b">
         <div className="mx-auto max-w-6xl px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            {/* Bigger + red title */}
-            <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight text-red-600">
+            <h1 className="text-2xl font-extrabold tracking-tight text-red-600">
               Pharmacy on Marlee
             </h1>
-            <p className="text-xs md:text-sm text-slate-600">
+            <p className="text-xs text-slate-600">
               Minor Ailments • Vaccinations • Prescriptions
             </p>
           </div>
 
           <nav className="hidden md:flex items-center gap-6 text-sm">
-            <a className="hover:underline" href="#book">Book</a>
             <a className="hover:underline" href="#refill">Refill</a>
+            <a className="hover:underline" href="#book">Book</a>
             <a className="hover:underline" href="#services">Services</a>
             <a className="hover:underline" href="#hours">Hours</a>
             <a className="hover:underline" href="#contact">Contact</a>
           </nav>
         </div>
+
+        {/* transient thanks banner */}
+        {showThanks && (
+          <div className="bg-green-600 text-white text-sm text-center py-2">
+            Thank you — your refill request was sent. We’ll call when it’s ready.
+          </div>
+        )}
       </header>
 
       {/* Hero (with licensed, free background image + badges) */}
       <section className="relative text-white">
         {/* Background image (Unsplash – free for commercial use).
-            Optional: upload /public/hero.jpg and set backgroundImage: "url('/hero.jpg')" */}
+            Optional: upload /public/hero.jpg and change to backgroundImage: "url('/hero.jpg')" */}
         <div
           className="absolute inset-0 bg-cover bg-center"
           style={{
@@ -129,16 +137,16 @@ export default function PharmacyOnMarleeSite() {
               {/* Primary actions */}
               <div className="mt-6 flex flex-wrap gap-3">
                 <a
-                  href="#book"
-                  className="px-5 py-3 font-semibold rounded-xl bg-white/10 ring-1 ring-white/60 hover:bg-white/20 transition"
-                >
-                  Book an Appointment
-                </a>
-                <a
                   href="#refill"
                   className="px-5 py-3 font-semibold rounded-xl bg-white/10 ring-1 ring-white/60 hover:bg-white/20 transition"
                 >
                   Request a Refill
+                </a>
+                <a
+                  href="#book"
+                  className="px-5 py-3 font-semibold rounded-xl ring-1 ring-white/60 hover:bg-white/10 transition"
+                >
+                  Book an Appointment
                 </a>
                 <a
                   href={`tel:${PHONE.replace(/[^0-9+]/g, "")}`}
@@ -166,6 +174,120 @@ export default function PharmacyOnMarleeSite() {
         </div>
       </section>
 
+      {/* Refill (simple form that emails the pharmacy) */}
+      <section id="refill" className="bg-white">
+        <div className="mx-auto max-w-6xl px-4 py-14">
+          <h3 className="text-2xl font-extrabold">Refill a Prescription</h3>
+          <p className="text-sm text-slate-600 mt-2">
+            Use this form to request a refill. We’ll call you when it’s ready. (No email confirmation is sent.)
+          </p>
+
+          <div className="mt-6 rounded-2xl border bg-white p-5">
+            {/* Using FormSubmit to send an email to the pharmacy without a backend */}
+            <form
+              action={`https://formsubmit.co/${encodeURIComponent(FORM_EMAIL)}`}
+              method="POST"
+              className="grid md:grid-cols-2 gap-4"
+            >
+              {/* Required hidden fields */}
+              <input type="hidden" name="_subject" value="New Refill Request - Pharmacy on Marlee" />
+              <input type="hidden" name="_template" value="table" />
+              <input type="hidden" name="_captcha" value="false" />
+              {/* Redirect back to site with a #refill-thanks hash to show a banner */}
+              <input
+                type="hidden"
+                name="_next"
+                value={`${typeof window !== "undefined" ? window.location.origin : ""}/#refill-thanks`}
+              />
+
+              <div>
+                <label className="block text-sm font-semibold mb-1">Patient Full Name *</label>
+                <input
+                  name="Patient Name"
+                  required
+                  className="w-full rounded-lg border px-3 py-2"
+                  placeholder="First and last name"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold mb-1">Date of Birth *</label>
+                <input
+                  name="Date of Birth"
+                  type="date"
+                  required
+                  className="w-full rounded-lg border px-3 py-2"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold mb-1">Phone Number *</label>
+                <input
+                  name="Phone"
+                  required
+                  className="w-full rounded-lg border px-3 py-2"
+                  placeholder="e.g., 416-555-1234"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold mb-1">Pickup or Delivery *</label>
+                <select name="Pickup or Delivery" required className="w-full rounded-lg border px-3 py-2">
+                  <option value="Pickup">Pickup</option>
+                  <option value="Delivery">Delivery (Free)</option>
+                </select>
+              </div>
+
+              <div className="md:col-span-2">
+                <label className="block text-sm font-semibold mb-1">Prescription(s) *</label>
+                <textarea
+                  name="Prescription(s)"
+                  required
+                  className="w-full rounded-lg border px-3 py-2"
+                  placeholder="Rx number(s) or medication name(s)"
+                  rows={3}
+                />
+              </div>
+
+              <div className="md:col-span-2">
+                <label className="block text-sm font-semibold mb-1">Delivery Address (if applicable)</label>
+                <input
+                  name="Delivery Address"
+                  className="w-full rounded-lg border px-3 py-2"
+                  placeholder="Street, City, Postal Code"
+                />
+              </div>
+
+              <div className="md:col-span-2">
+                <label className="block text-sm font-semibold mb-1">Notes (optional)</label>
+                <textarea
+                  name="Notes"
+                  className="w-full rounded-lg border px-3 py-2"
+                  placeholder="Anything else we should know?"
+                  rows={2}
+                />
+              </div>
+
+              <div className="md:col-span-2 flex items-center gap-2 text-xs text-slate-600">
+                <input id="consent" type="checkbox" name="Consent to Contact" className="h-4 w-4" />
+                <label htmlFor="consent">
+                  I consent to the pharmacy contacting me about this request.
+                </label>
+              </div>
+
+              <div className="md:col-span-2">
+                <button
+                  type="submit"
+                  className="px-5 py-3 rounded-xl bg-blue-600 text-white font-semibold ring-1 ring-blue-700/40 hover:bg-blue-700 transition"
+                >
+                  Submit Refill Request
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </section>
+
       {/* Booking */}
       <section id="book" className="bg-blue-600 text-white">
         <div className="mx-auto max-w-6xl px-4 py-14">
@@ -186,7 +308,7 @@ export default function PharmacyOnMarleeSite() {
             <div className="mt-6 grid md:grid-cols-2 gap-6">
               <div className="rounded-2xl bg-white text-slate-900 p-5">
                 <p className="text-sm">
-                  MAPflow embed not connected yet. Once you share your MAPflow link, we’ll drop it in so
+                  MAPflow embed not connected yet. Once you share your Mapflow link, we’ll drop it in so
                   patients can book directly here.
                 </p>
                 <p className="text-sm mt-3">
@@ -217,94 +339,6 @@ export default function PharmacyOnMarleeSite() {
         </div>
       </section>
 
-      {/* NEW: Refill request (emails pharmacyonmarlee@gmail.com via FormSubmit) */}
-      <section id="refill" className="bg-white">
-        <div className="mx-auto max-w-6xl px-4 py-14">
-          <h3 className="text-2xl font-extrabold">Request a Refill</h3>
-          <p className="text-sm text-slate-600 mt-2">
-            Secure form — your request is sent to our pharmacy inbox. We’ll contact you if we need more info.
-          </p>
-
-          <form
-            className="mt-6 grid md:grid-cols-2 gap-6 rounded-2xl border p-5"
-            action="https://formsubmit.co/pharmacyonmarlee@gmail.com"
-            method="POST"
-          >
-            {/* FormSubmit controls */}
-            <input type="hidden" name="_subject" value="New Refill Request – Pharmacy on Marlee" />
-            <input type="hidden" name="_template" value="table" />
-            <input type="hidden" name="_captcha" value="false" />
-            {/* Optional: set this to your live URL to show a friendly success page after submit */}
-            {/* <input type="hidden" name="_next" value="https://YOUR-DOMAIN/#refill" /> */}
-            {/* Honeypot anti-spam */}
-            <input type="text" name="_honey" style={{ display: "none" }} tabIndex={-1} autoComplete="off" />
-
-            <div className="space-y-3">
-              <div>
-                <label className="block text-sm font-semibold">Full name *</label>
-                <input name="Full Name" required className="mt-1 w-full rounded-lg border px-3 py-2" />
-              </div>
-              <div>
-                <label className="block text-sm font-semibold">Date of birth (YYYY-MM-DD) *</label>
-                <input name="Date of Birth" required placeholder="1979-04-15" className="mt-1 w-full rounded-lg border px-3 py-2" />
-              </div>
-              <div>
-                <label className="block text-sm font-semibold">Phone number *</label>
-                <input name="Phone" required placeholder="(###) ###-####" className="mt-1 w-full rounded-lg border px-3 py-2" />
-              </div>
-              <div>
-                <label className="block text-sm font-semibold">Email (for confirmation)</label>
-                <input type="email" name="Email" placeholder="you@example.com" className="mt-1 w-full rounded-lg border px-3 py-2" />
-              </div>
-            </div>
-
-            <div className="space-y-3">
-              <div>
-                <label className="block text-sm font-semibold">Prescription # or Medication name *</label>
-                <textarea name="Rx / Medication" required rows={3} className="mt-1 w-full rounded-lg border px-3 py-2" />
-              </div>
-              <div>
-                <label className="block text-sm font-semibold">Preferred pickup or delivery</label>
-                <select name="Pickup/Delivery" className="mt-1 w-full rounded-lg border px-3 py-2">
-                  <option value="Pickup">Pickup</option>
-                  <option value="Delivery">Delivery</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-semibold">Notes (allergies, changes, insurance, etc.)</label>
-                <textarea name="Notes" rows={3} className="mt-1 w-full rounded-lg border px-3 py-2" />
-              </div>
-
-              <div className="flex items-start gap-2">
-                <input type="checkbox" required className="mt-1" id="consent" name="Consent" value="Yes" />
-                <label htmlFor="consent" className="text-sm text-slate-700">
-                  I consent to the pharmacy contacting me about this request and accessing my prescription profile.
-                </label>
-              </div>
-
-              <div className="pt-2 flex gap-3">
-                <button
-                  type="submit"
-                  className="px-4 py-2 rounded-lg bg-blue-600 text-white font-semibold ring-1 ring-blue-700/40 hover:bg-blue-700 transition"
-                >
-                  Submit Refill
-                </button>
-                <a
-                  href={`tel:${PHONE.replace(/[^0-9+]/g, "")}`}
-                  className="px-4 py-2 rounded-lg ring-1 ring-slate-300 hover:bg-slate-50 transition"
-                >
-                  Or call {PHONE}
-                </a>
-              </div>
-
-              <p className="text-xs text-slate-500">
-                We may call you to confirm details (e.g., refills remaining, insurance, prescriber). Urgent needs? Please call us.
-              </p>
-            </div>
-          </form>
-        </div>
-      </section>
-
       {/* Services */}
       <section id="services" className="bg-white">
         <div className="mx-auto max-w-6xl px-4 py-14">
@@ -331,7 +365,7 @@ export default function PharmacyOnMarleeSite() {
       <section id="hours" className="bg-slate-50">
         <div className="mx-auto max-w-6xl px-4 py-14">
           <h3 className="text-2xl font-extrabold">Business Hours</h3>
-          <div className="mt-6 overflow-hidden rounded-2xl border bg-white">
+        <div className="mt-6 overflow-hidden rounded-2xl border bg-white">
             <table className="w-full text-left text-sm">
               <tbody>
                 {Object.entries(BUSINESS_HOURS).map(([day, hours]) => (
@@ -376,12 +410,12 @@ export default function PharmacyOnMarleeSite() {
                 </a>
 
                 <a
-                  href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(ADDRESS)}`}
+                  href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(ADDRESS)}`}
                   target="_blank"
                   rel="noreferrer"
                   className="px-4 py-2 rounded-lg ring-1 ring-slate-300 hover:bg-slate-50 transition"
                 >
-                  Open in Google Maps
+                  Get Directions
                 </a>
               </div>
             </div>
